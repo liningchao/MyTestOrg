@@ -1,0 +1,15 @@
+<apex:page showHeader="false">
+<script>
+    function onload(){
+        if(!sforce.console.isInConsole())
+            {
+                document.getElementById('maindiv').style.display = "none"; 
+            }
+        }
+</script>
+<body onload = "onload();">
+    <div id="maindiv">
+        
+    </div>
+</body>
+</apex:page>

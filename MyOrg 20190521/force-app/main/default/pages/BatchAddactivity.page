@@ -1,0 +1,42 @@
+<apex:page controller="BatchAddActivityMember" sidebar="false" id="page">
+	<head>
+		<script  type="text/javascript" charset="UTF-8">
+			function showSection(){
+				showSection();
+			}
+			function showLoad()
+			{
+			    document.getElementById("loading").style.display="";
+			}
+			function hideLoad()
+			{
+			    document.getElementById("loading").style.display="none";
+			}
+		</script>
+	</head>
+	<apex:form >
+	 	<apex:actionFunction action="{!showSection}" name="showSection" status="searchStatus" reRender="myPageBlock,myPageBlock2"/>
+	 	<apex:actionStatus id="searchStatus" onstart="showLoad()" onstop="hideLoad()">
+        </apex:actionStatus>
+		<apex:sectionHeader title="批量添加活动成员"/> 
+		<apex:pageMessages id="myMessage"/>
+		<div id="loading" style="display:none;position:fixed !important;position:absolute;top:0;left:0;height:100%; width:100%; z-index:1005; background:#fff url({!URLFOR($Resource.Loading)}) no-repeat center center; opacity:0.6; filter:alpha(opacity=60);font-size:14px;line-height:20px;"/>
+		<apex:pageBlock id="myPageBlock">
+			<apex:pageBlockSection title="选择海量获客" collapsible="false" id="onePCSection"  columns="2" >
+				<apex:inputField value="{!member.Guest__c}" required="true"></apex:inputField>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		<apex:pageBlock id="myPageBlock2">
+			<apex:pageBlockSection title="上传附件" collapsible="false" id="twoPCSection" columns="2">
+				<apex:pageBlockSectionItem >
+					潜客附件:<apex:inputFile value="{!leadAtt.body}" title="潜客附件" filename="{!leadAtt.name}" id="fileLead"/>
+				</apex:pageBlockSectionItem> 
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="添加成员" collapsible="false" id="threePCSection" >
+				 <div style="margin-left:20px">
+				 	<apex:commandButton value="确认添加" action="{!AddButton}" />
+				 </div>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

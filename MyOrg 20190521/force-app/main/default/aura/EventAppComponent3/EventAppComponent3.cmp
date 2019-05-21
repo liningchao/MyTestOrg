@@ -1,0 +1,8 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable">
+    <lightning:card title="App事件" iconName="standard:work_order" footer="App事件">
+    	<p class="slds-p-horizontal_small">
+    		<c:EventAppComponnet1 />
+    		<c:EventAppComponent2 />
+		</p>
+	</lightning:card> 
+</aura:component>

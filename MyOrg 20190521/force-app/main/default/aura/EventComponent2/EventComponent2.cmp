@@ -1,0 +1,17 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" >
+    <aura:attribute name="messageFromEvent" type="String"/>
+    <aura:attribute name="numEvents" type="Integer" default="0"/>
+     <!--监听子组件(CMP事件)事件-->
+    <aura:handler name="cmpEvent" event="c:Event1" action="{!c.handleComponentEvent}"/>
+
+    <lightning:card title="COM事件" iconName="standard:work_order" footer="COM事件">
+    	<p class="slds-p-horizontal_small">
+    		<c:EventComponent1 />
+
+    		<p>{!v.messageFromEvent}</p>
+    		<p>Number of events: {!v.numEvents}</p>
+
+            <c:EventComponent3 messageFromEvent="{!v.messageFromEvent}" numEvents="{!v.numEvents}"/>
+		</p>
+	</lightning:card> 
+</aura:component>

@@ -1,0 +1,39 @@
+<aura:component controller="jQueryDataTableCtrl" implements="flexipage:availableForAllPageTypes,force:appHostable">
+    <!--- 通过使用ltng：require组件 引用css和jquery-->
+    <ltng:require styles="{!$Resource.datatable + '/DataTables-1.10.16/media/css/jquery.dataTables.min.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.jquery224 , 
+                           $Resource.datatable + '/DataTables-1.10.16/media/js/jquery.dataTables.min.js')
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+    
+    <aura:attribute name="lstProduct" type="List"/>     
+    
+    <lightning:card title="产品Datatable" iconName="standard:work_order" footer="Datatable">
+    	<p class="slds-p-horizontal_small">
+		    <div class="slds-m-around_medium">
+		        <table id="tableId" class="slds-table slds-table_bordered slds-table_cell-buffer" cellspacing="0" width="100%">
+		            <thead>
+		                <tr>
+		                    <th>产品名称</th>
+		                    <th>产品品牌</th>
+		                    <th>产品型号</th>
+		                    <th>产品价格</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <aura:iteration items="{!v.lstProduct}" var="p">
+		                    <tr>
+		                        <td>{!p.Name}</td>
+		                        <td>{!p.Product_Brand__c}</td>
+		                        <td>{!p.Product_Number__c}</td>
+		                        <td>{!p.Product_Price__c}</td>
+		                    </tr>
+		                </aura:iteration>  
+		            </tbody>
+		        </table>
+		    </div>
+		</p>
+	</lightning:card>
+</aura:component>

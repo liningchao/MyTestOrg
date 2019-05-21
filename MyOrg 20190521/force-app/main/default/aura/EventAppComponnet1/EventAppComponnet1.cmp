@@ -1,0 +1,7 @@
+<aura:component >
+    <aura:registerEvent name="appEvent" type="c:Event2"/>
+
+    <h1>App事件</h1>
+    <p><lightning:button label="触发应用程序事件" onclick="{!c.fireApplicationEvent}" />
+    </p>
+</aura:component>

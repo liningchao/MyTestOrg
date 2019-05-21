@@ -1,0 +1,64 @@
+<aura:component controller="AddWarehouseProductsController">
+	<aura:attribute name="ProductList" type="List" description="产品list"/>
+	<aura:attribute name="showSaveCancelBtn" type="boolean" default="false" description="用于显示保存按钮aura：if判断条件"/>
+
+	<!--初始化方法-->
+	<aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+	<!--注册一个Component 事件-->
+    <aura:registerEvent name="componentEvent" type="c:CmpEvent"/>
+
+	<aura:if isTrue="{!v.showSaveCancelBtn}">
+        <lightning:button label="Cancel" onclick="{!c.cancel}"/>
+        <lightning:button label="Save" onclick="{!c.Save}" variant="success"/>
+    </aura:if>
+    <br></br>
+
+	<p class="slds-p-horizontal_small">
+		<lightning:badge label="修改产品信息弹出框" />
+	</p>
+
+	<br></br>
+	<p class="slds-p-horizontal_small">
+	    <div class="slds-table_edit_container slds-is-relative">
+	        <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-no-cell-focus slds-table_edit" role="grid">
+	            <thead>
+	                <tr class="slds-line-height_reset">
+	                    <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+	                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+	                            <span class="slds-truncate">序号</span>
+	                        </a>
+	                    </th> 
+	                    <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+	                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+	                            <span class="slds-truncate">产品名称</span>
+	                        </a>
+	                    </th>                                                 
+	                    <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+	                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+	                            <span class="slds-truncate">产品品牌</span>
+	                        </a>
+	                    </th>
+	                    <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+	                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+	                            <span class="slds-truncate">产品型号</span>
+	                        </a>
+	                    </th>
+	                    <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Confidence" scope="col">
+	                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+	                            <span class="slds-truncate">产品价格</span>
+	                        </a>
+	                    </th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <aura:iteration items="{!v.ProductList}" var="obj" indexVar="sNo">
+	                    <!-- 子组件 Lightning Component --> 
+	                    <c:inlineEditRow singleRec="{!obj}"
+	                                     showSaveCancelBtn="{!v.showSaveCancelBtn}"
+	                                     sNo="{!sNo + 1}" />
+	                </aura:iteration>
+	            </tbody>
+	        </table>
+	    </div>
+	</p>
+</aura:component>

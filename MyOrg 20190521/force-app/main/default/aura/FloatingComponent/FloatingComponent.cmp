@@ -1,0 +1,14 @@
+<aura:component >
+    <!--注册一个Component 事件-->
+    <aura:registerEvent name="FloatingEvent" type="c:FloatingEvent"/>
+    <aura:attribute name="DMmessage" type="String"/>
+
+    <div class="slds-input-has-icon slds-input-has-icon--right" style="width: 300px;">
+        <div class="slds-show">
+            <ui:inputText blur="{!c.fireComponentEvent}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.DMmessage}" placeholder="广告词"/>
+        </div>
+        <a href="javascript:void(0);" onclick="{!c.fireComponentEvent}">
+            <lightning:icon class="slds-input__icon slds-show" iconName="utility:forward" size="x-small" alternativeText="广告词"/> 
+        </a>
+    </div>
+</aura:component>

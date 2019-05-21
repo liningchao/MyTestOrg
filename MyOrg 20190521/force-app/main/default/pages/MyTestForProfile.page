@@ -1,0 +1,28 @@
+<apex:page sidebar="false" id="page" controller="MyTest" docType="html-5.0">
+	<apex:form id="form" styleClass="createSPMRequest">
+		<apex:sectionHeader title="New SPM Request"/>
+		<apex:pageMessages id="message"/>
+		<apex:pageBlock >
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton id="SaveButton" value="保存" reRender="message" action="{!Save}"/>
+				<!-- <apex:commandButton id="DeleteButton" value="删除" reRender="message" action="{!Delete}"/> -->
+			</apex:pageBlockButtons>
+			<apex:pageBlockSection id="menue" title="Test List" columns="2" collapsible="true">
+				<apex:pageBlockTable value="{!accountList}" var="account" id="account" width="100%" >
+					<apex:column headerValue="姓名" >
+                        <apex:inputField value="{!account.username__c}"/> 
+                    </apex:column>
+                    <apex:column headerValue="手机" >
+                        <apex:inputField value="{!account.phone__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="邮箱" >
+                        <apex:inputField value="{!account.email__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="BacNO" >
+                        <apex:inputField value="{!account.bankno__c}"/>
+                    </apex:column>
+				 </apex:pageBlockTable>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

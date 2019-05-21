@@ -1,0 +1,127 @@
+<p class="input-group">
+	<!-- 使用angularJS标准的query filter功能来对于table中展示的数据进行模糊搜索 -->
+	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+	<input type="text" class="form-control" placeholder="输入关键字检索" ng-model="query" style="width: 200px">
+	<a class="btn btn-warning btn-md pull-right" href="#/new"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>新增客户</a>
+</p>
+<table class="table table-hover" style='table-layout:fixed;'>
+	<thead>
+		<th>
+			<a>操作</a>
+		</th>
+		<th>
+			<a ng-click="predicate = 'Name';reverse = !reverse;">名称</a>
+		</th>
+		<th>
+			<a ng-click="predicate = 'status';reverse = !reverse;">状态</a>
+		</th>
+		<th>
+			<a ng-click="predicate = 'Phone';reverse = !reverse;">电话</a>
+		</th>
+		<th>
+			<a ng-click="predicate = 'Type';reverse = !reverse;">类型</a>
+		</th>
+	</thead>
+	<tbody>
+		<tr ng-repeat="acc in accounts | filter:query | orderBy:predicate:reverse">
+			<td>
+				<button class="btn btn-default btn-xs" data-toggle="modal" data-target="#confirmEdit" ng-click="selectAccount(acc.Id);"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+				<button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#confirmDelete" ng-click="selectAccount(acc.Id);"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+			</td>
+			<td style="word-break:break-all; word-wrap:break-all;">
+				{{acc.Name}}
+			</td>
+			<td style="word-break:break-all; word-wrap:break-all;">
+				{{acc.status}}
+			</td>
+			<td style="word-break:break-all; word-wrap:break-all;">
+				{{acc.Phone}}
+			</td>
+			<td style="word-break:break-all; word-wrap:break-all;">
+				{{acc.Type}}
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- 分页导航栏 -->
+<div class="text-center"><pagination ng-model="currentPage" total-items="total" max-size="5" boundary-links="true"></pagination></div>
+<!-- 弹窗部分，用于删除和编辑功能 -->
+<div>
+	<!-- 确认删除客户弹窗 -->
+	<div class="modal fade" id="confirmDelete">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" ng-click="selectAccount(null);">
+				<span aria-hidden="true">&times;</span>
+				<span class="sr-only">Close</span>
+			</button>
+			<h4>删除客户</h4>
+		</div>
+		<div class="modal-body">
+			<p>确认删除名称为: <strong>{{selectedAccount.Name}}</strong>的客户?</p>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="selectAccount(null)">取消</button>
+			<button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteAccount(selectedAccount.Id)">删除</button>
+		</div>
+		</div>
+		</div>
+	</div>
+	<!-- 编辑客户弹窗 -->
+	<div>
+		<div class="modal fade" id="confirmEdit">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" ng-click="selectAccount(null);">
+				<span aria-hidden="true">&times;</span>
+				<span class="sr-only">Close</span>
+			</button>
+			<h4>编辑客户</h4>
+		</div>
+		<div class="modal-body">
+			<form style="form-horizontal" id="edit_form">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group">
+							<label for="name">名称</label>
+							<input type="text" class="form-control" id="name" ng-model="selectedAccount.Name">
+						</div>
+						<div class="form-group">
+							<label for="status">状态</label>
+							<select class="form-control" ng-model="selectedAccount.status" id="status">
+								<option value="草稿">草稿</option>
+								<option value="审批中">审批中</option>
+								<option value="审批通过">审批通过</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="phone">电话</label>
+							<input type="text" class="form-control" id="phone" ng-model="selectedAccount.Phone">
+						</div>
+						<div class="form-group">
+							<label for="type">类型</label>
+							<select class="form-control" ng-model="selectedAccount.Type" id="type">
+								<option value="Prospect">Prospect</option>
+								<option value="Customer - Direct">Customer - Direct</option>
+								<option value="Customer - Channel">Customer - Channel</option>
+								<option value="Channel Partner / Reseller">Channel Partner / Reseller</option>
+								<option value="Installation Partner">Installation Partner</option>
+								<option value="Technology Partner">Technology Partner</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="selectAccount(null)">取消</button>
+			<button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="editAccount(selectedAccount.Id)">保存</button>
+		</div>
+		</div>
+		</div>
+		</div>
+	</div>
+</div>

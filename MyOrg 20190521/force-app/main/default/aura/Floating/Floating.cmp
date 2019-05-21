@@ -1,0 +1,17 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="intervalId" type="Integer" default="0"/>
+    <aura:attribute name="DMString" type="String" default="大家好，才是真的好。"/>
+    
+    <!--监听子组件(CMP事件)事件-->
+    <aura:handler name="FloatingEvent" event="c:FloatingEvent" action="{!c.handleFloatingEvent}"/>
+
+	<c:FloatingComponent />
+	<br></br>
+	<div id="parentDIV" style="overflow:hidden">
+        <p style="position:relative;" id="tofloat">
+            <b><span style="color:red">广告： </span>
+            {!v.DMString}</b>
+        </p>
+    </div>
+</aura:component>

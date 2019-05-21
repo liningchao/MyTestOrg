@@ -1,0 +1,24 @@
+<apex:page controller="AddProductController" id="page" sidebar="false">
+	<apex:form >
+		<apex:sectionHeader title="批量操作"/>
+		<apex:pageBlock id="block1">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!doSave}" value="保存"/>
+                <apex:commandButton action="{!doCancel}" value="取消"/>
+            </apex:pageBlockButtons>
+	        <apex:pageBlockSection title="搜索结果" columns="1" id="SingleInv">
+				<apex:messages style="color:red" id="message"/>
+				<apex:outputPanel >
+					<apex:pageBlockTable value="{!orderList}" var="order" width="100%" id="table1">
+						
+						<apex:column value="{!order.Name}" headervalue="订单名称"/>
+						<apex:column value="{!order.Order_Number__c}" headervalue="订单编号"/>	
+						<apex:column width="10%" headervalue="是否满足条件">
+							<apex:inputCheckbox id="invId" value="{!order.Is_Condition__c}"/>
+						</apex:column>
+					</apex:pageBlockTable> 			
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

@@ -1,0 +1,38 @@
+<apex:page showHeader="false" sidebar="false" docType="html-5.0" standardStylesheets="false" controller="SPA_Controller">
+    <!-- 声明一个数据模型（Account对象） -->
+    <apex:remoteObjects >
+        <apex:remoteObjectModel name="Account" jsShorthand="Accs" fields="Id,Name,Phone,Type">
+            <apex:remoteObjectField name="Field1__c" jsShorthand="status"/>
+        </apex:remoteObjectModel>
+    </apex:remoteObjects>
+    <!-- Bootstrap css引用及参数设定 -->
+    <META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SPA_Demo, 'SPA_Demo/css/bootstrap-3.3.6.min.css')}"/>
+
+    <body ng-app="SPA_Demo" id="mainDiv">
+        <div class="container">
+            <div class="row panel panel-primary">
+                <div class="panel-heading text-center">
+                    <h1>Single Page Application Demo<a class="btn btn-danger btn-md pull-right" href="/home/home.jsp">退出</a></h1>
+
+                </div>
+                <!-- 这是AngularJS的显示区域部分（通过ng-view来定位），可以理解为传统的视图层，在AngularJS中可以通过Route来根据URL的参数重新定向View中展示的内容，这里就体现了MVC的设计思想，其实本质是在一个页面中，通过Route来动态的切换视图和Controller，多功能页面在一个页面中的集成 -->
+                <div ng-view="ng-view" class="panel-body">
+                </div>
+            </div>
+        </div>
+        <!-- Loading效果div -->
+        <div id="loading" style="background:#fff url({!URLFOR($Resource.Loading)}) no-repeat center center; filter:alpha(opacity=60);opacity:0.6;font-size:14px;line-height:20px; position:absolute;top:0;left:0;height:100%; width:100%; display: none;"></div>
+        <!-- JQuery,AngularJS,BootstrapJS引用 -->
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/frameworks/jquery-1.11.3.min.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/frameworks/bootstrap-3.3.7.min.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/frameworks/angular-1.6.6.min.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/frameworks/angular-route-1.3.13.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/frameworks/ui-bootstrap-tpls-0.12.1.min.js')}"/>
+
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/app.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/ctrls/accountListController.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/ctrls/accountNewController.js')}"/>
+        <script src="{!URLFOR($Resource.SPA_Demo,'SPA_Demo/services/loadingService.js')}"/>
+    </body>
+</apex:page>

@@ -1,0 +1,33 @@
+<apex:page >
+	<script src="https://cdn-hangzhou.goeasy.io/goeasy.js"/>
+	<script type="text/javascript" >
+		var goeasy;
+
+		window.onload = getGoEasy();
+
+		function getGoEasy(){
+			goeasy = new GoEasy({
+	            appkey: 'BC-ef02efbf615248c6a7ef27dff1e1ebdf'
+	        });
+
+	        console.log(goeasy);
+
+	        goeasy.subscribe({
+			    channel: 'test_channel',
+			    onMessage: function(message){
+			    	//alert('收到：'+message.content);
+			    	console.log('收到：'+message.content);
+			    }
+			});
+		}
+
+		function submit(){
+			goeasy.publish({
+			    channel: 'test_channel',
+			    message: document.getElementById('inputStr').value
+			});
+		}
+	</script>
+
+	<input type="text" id="inputStr" value="" /><button type="button" onclick="submit()">输入</button>
+</apex:page>

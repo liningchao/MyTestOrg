@@ -1,0 +1,387 @@
+<!-- 
+	Component Name : AddWarehouseProducts
+  * @作者: Felix
+  * @时间: 2018-05-08 
+  * @功能: 添加仓库产品Component
+  *
+  * @日志:
+  *  ***********************************************************************************************************************
+  *   开发者                     日期                    备注
+  *  ***********************************************************************************************************************
+  *   Felix                    2018-05-08               创建
+  *   Felix                    2018-05-16               增加分页和筛选功能
+ -->
+
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable,force:hasRecordId" controller="AddWarehouseProductsController">
+    <!-- 
+    	常用继承：
+    		flexipage:availableForAllPageTypes : 使您的组件可用于记录页面和任何其他类型的页面
+			lightning:actionOverride ：覆盖标准按钮时，需要在component当中加入此属性
+			force:appHostable：可以创建App或者选项卡
+			force:hasRecordId：分配当前记录的ID   属性这么写：<aura:attribute name="recordId" type="String" />
+     -->
+    <!--初始化方法-->
+	<aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+	<!--页面所需变量-->
+	<aura:attribute name="recordId" type="String" description="获取当前记录id"/>
+	<aura:attribute name="warehouseProductList" type="List" description="仓库已存在产品list"/>
+    <aura:attribute name="ProductList" type="List" description="产品list"/>
+    <aura:attribute name="selectedCount" type="integer" default="0" description="用于记录有多少条选中数据"/>
+    <aura:attribute name="showSaveCancelBtn" type="boolean" default="false" description="用于显示保存按钮aura：if判断条件"/>
+    <aura:attribute name="SearchKeyWord" type="string" description="搜索关键字参数"/>
+    <!-- 分页参数 -->
+    <aura:attribute name="page" type="integer" description="当前页码"/>
+    <aura:attribute name="pages" type="integer" description="页码总数"/>
+    <aura:attribute name="total" type="integer" description="分页记录总数"/>
+    <aura:attribute name="pagesize" type="integer" description="每页记录数"/>
+    <!-- 排序参数 -->
+    <aura:attribute name="arrowDirection" type="string" default="arrowup" description="标题上的箭头符号方向"/>
+    <aura:attribute name="isAsc" type="boolean" default="true" description="用于排序条件传递到Apex类的布尔标志"/> 
+    <aura:attribute name="selectedTabsoft" type="string" default="Product_Price__c" description="在哪个字段的标题上显示/隐藏箭头标志"/>
+
+    <!--监听子组件(CMP事件)事件-->
+    <aura:handler name="componentEvent" event="c:CmpEvent" action="{!c.handlecomponentEvent}"/>
+    
+	<!--页面加载动画Loading  讲一下自己加一段css 覆盖全屏 class="slds-spinner_container"-->
+	<lightning:spinner aura:id="mySpinner" variant="brand" />
+	<!-- 卡片 title卡片头部显示信息  iconName显示图标  footer 卡片底部显示信息-->
+    <lightning:card title="批量添加仓库产品" iconName="standard:work_order" footer="{!'选择产品记录数:' + v.selectedCount}">
+	    <!-- Lightning 标准icon标签  
+	    	 <lightning:icon iconName="custom:custom93"/> 
+	    	 icon样式地址：https://www.lightningdesignsystem.com/icons/ 
+             * lightning标签只有 aura id 没有 id属性
+	    -->
+        <!-- 卡片的按钮区域 -->
+        <aura:set attribute="actions">
+        	<lightning:button variant="brand" label="添加仓库产品" iconName="action:back" iconPosition="left" onclick="{!c.saveAll}" />
+        	<lightning:button variant="brand" label="删除仓库产品" iconName="action:approval" iconPosition="left" onclick="{!c.confirmDel}" />
+            <!-- <lightning:button variant="brand" label="添加行" iconName="action:approval" iconPosition="left" onclick="{!c.addRow}" />
+            <lightning:button variant="brand" label="删除行" iconName="action:approval" iconPosition="left" onclick="{!c.delRow}" /> -->
+            <aura:if isTrue="{!v.showSaveCancelBtn}">
+                <lightning:button label="Cancel" onclick="{!c.cancel}"/>
+                <lightning:button label="Save" onclick="{!c.Save}" variant="success"/>
+            </aura:if>
+        </aura:set>
+         <!-- <p class="slds-p-horizontal_small">
+            <lightning:badge label="弹幕" />
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <c:Floating />
+        </p> -->
+        <br></br>
+        <!-- 卡片体 -->
+        <p class="slds-p-horizontal_small">
+            <lightning:badge label="仓库中已存在的产品" />
+        </p>
+        <br></br>
+        
+        <p class="slds-p-horizontal_small">
+            <lightning:badge label="请选择需要入库的产品" />
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <!-- 将查询图标放到输入框里 使用下面这两个样式-->
+            <div class="slds-input-has-icon slds-input-has-icon--right" style="width: 300px;">
+                <div class="slds-show">
+                    <ui:inputText blur="{!c.SearchProduct}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.SearchKeyWord}" placeholder="search.."/>
+                </div>
+                <a href="javascript:void(0);" onclick="{!c.SearchProduct}">
+                    <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search"/> 
+                </a>
+            </div>
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <!-- 创建table的tr -->
+            <div class="slds-table_edit_container slds-is-relative">
+                <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-no-cell-focus slds-table_edit" role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width: 5%;">
+                                <div class="slds-th__action slds-th__action_form">
+                                    <ui:inputCheckbox aura:id="productAllbox"  change="{!c.selectAll}"/>
+                                </div>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">序号</span>
+                                </a>
+                            </th> 
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品名称</span>
+                                </a>
+                            </th>                                                 
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品品牌</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品型号</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Confidence" scope="col" onclick="{!c.sortProductPrice}">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品价格</span>
+                                    <!-- &#9660 是网页特殊符号  向下箭头 -->
+                                    <aura:if isTrue="{! and(v.arrowDirection == 'arrowdown', v.selectedTabsoft == 'Product_Price__c') }">&nbsp; &#9660;</aura:if>  
+                                    <aura:if isTrue="{! and(v.arrowDirection != 'arrowdown', v.selectedTabsoft == 'Product_Price__c') }"> &nbsp; &#9650;</aura:if>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Contact" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">入库数量</span>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!-- 循环table的td -->
+                    <tbody>
+                        <!-- aura:iteration 页面循环 -->
+                        <aura:iteration items="{!v.ProductList}" var="obj" indexVar="sNo">
+                            <tr class="slds-hint-parent">
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <!-- 这里注意当前版本 lightning标准的复选框 后台拿不到值 -->
+                                    <ui:inputCheckbox aura:id="productbox" value="{!obj.flag}" change="{!c.checkboxSelect}"/>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!sNo + 1}</span>
+                                    </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate" title="{!obj.cp.Product_Name__c}">{!obj.cp.Name}</span>
+                                    </span>
+                                </td>
+                                <!-- 注意这里必须设置一个'无' 因为如果默认值是第一个值的话，不去更改触发事件的话这个字段值为空-->
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">
+                                            <div class="slds-truncate">
+                                                <ui:inputSelect value="{!obj.cp.Product_Brand__c}">
+                                                    <ui:inputSelectOption text="" label="--请选择--"/>
+                                                    <ui:inputSelectOption text="联想" label="联想"/>
+                                                    <ui:inputSelectOption text="戴尔" label="戴尔"/>
+                                                    <ui:inputSelectOption text="苹果" label="苹果"/>
+                                                    <ui:inputSelectOption text="小米" label="小米"/>
+                                                    <ui:inputSelectOption text="华硕" label="华硕"/>
+                                                    <ui:inputSelectOption text="神舟" label="神舟"/>
+                                                    <ui:inputSelectOption text="微软" label="微软"/>
+                                                    <ui:inputSelectOption text="微星" label="微星"/>
+                                                </ui:inputSelect>
+                                            </div>
+                                        </span>
+                                    </span>
+                                </td>
+                                <!-- <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.cp.Product_Brand__c}</span>
+                                    </span>
+                                </td> -->
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.cp.Product_Number__c}</span>
+                                     </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.cp.Product_Price__c}</span>
+                                     </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">
+                                            <ui:inputNumber value="{!obj.num}"/>
+                                        </span>
+                                     </span>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                    <tfoot class="slds-card__footer">
+                        <tr>
+                            <td colspan="7">
+                                <div class="slds-truncate" style="text-align: center;">
+                                    记录总数：{!v.total}&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button disabled="{!v.page == 1}"  text="首页" onclick="{!c.HomeLastNavigate}" class="slds-button">首页</button>
+                                    <button disabled="{!v.page == 1}"  text="上一页" onclick="{!c.navigate}" class="slds-button">上一页</button>
+                                    <button aura:id="previousPage" disabled="{!v.page == v.pages}"  text="下一页" onclick="{!c.navigate}" class="slds-button">下一页</button>
+                                    <button disabled="{!v.page == v.pages}"  text="尾页" onclick="{!c.HomeLastNavigate}" class="slds-button">尾页</button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; 第{!v.page} / {!v.pages}页
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <!-- 创建table的tr -->
+            <div class="slds-table_edit_container slds-is-relative">
+                <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-no-cell-focus slds-table_edit" role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width: 5%;">
+                                <div class="slds-th__action slds-th__action_form">
+                                    <ui:inputCheckbox aura:id="Allbox"  change="{!c.selectAll}"/>
+                                </div>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">序号</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品名称</span>
+                                </a>
+                            </th>                                                 
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品品牌</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品型号</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Confidence" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品价格</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Contact" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">库存数量</span>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!-- 循环table的td -->
+                    <tbody>
+                        <!-- aura:iteration 页面循环  indexVar属性为自动编号-->
+                        <aura:iteration items="{!v.warehouseProductList}" var="obj" indexVar="sNo">
+                            <tr class="slds-hint-parent">
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <!-- 这里注意当前版本 lightning标准的复选框 后台拿不到值 -->
+                                    <ui:inputCheckbox aura:id="box" value="{!obj.flag}"/>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!sNo + 1}</span>
+                                    </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate" title="{!obj.wp.Product_Name__c}">{!obj.wp.Product_Name__c}</span>
+                                    </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.wp.Product_Brand__c}</span>
+                                    </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.wp.Product_Number__c}</span>
+                                     </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.wp.Product_Price__c}</span>
+                                     </span>
+                                </td>
+                                <td class="slds-cell-edit" role="gridcell">
+                                    <span class="slds-grid slds-grid_align-spread">
+                                        <span class="slds-truncate">{!obj.wp.Stock_Quantity__c}</span>
+                                     </span>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </div>
+        </p>
+        
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <lightning:badge label="修改产品信息弹出框" />
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <div class="slds-table_edit_container slds-is-relative">
+                <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-no-cell-focus slds-table_edit" role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">序号</span>
+                                </a>
+                            </th> 
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Account Name" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品名称</span>
+                                </a>
+                            </th>                                                 
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品品牌</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Stage" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品型号</span>
+                                </a>
+                            </th>
+                            <th aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Confidence" scope="col">
+                                <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="-1">
+                                    <span class="slds-truncate">产品价格</span>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.ProductList}" var="obj" indexVar="sNo">
+                            <!-- 子组件 Lightning Component --> 
+                            <c:inlineEditRow singleRec="{!obj}"
+                                             showSaveCancelBtn="{!v.showSaveCancelBtn}"
+                                             sNo="{!sNo + 1}" />
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </div>
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <lightning:badge label="COM事件" />
+        </p>
+        <br></br>
+        <p class="slds-p-horizontal_small">
+            <!-- 子组件 Lightning Component --> 
+            <c:updateProduct />
+        </p>
+        <!--弹出层,删除客户提示-->
+        <div role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open" aura:id="comfirmDialog">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" title="Close" onclick="{!c.confirmDel}">
+                        <lightning:icon iconName="utility:close" variant="bare" alternativeText="关闭"/>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">删除产品</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium" style="text-align: center">确认删除选中的仓库产品么?</div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.confirmDel}">取消</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.delProduct}">确认</button>
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--open" aura:id="comfirmDialogBackdrop"></div>
+    </lightning:card>
+</aura:component>

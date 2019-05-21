@@ -1,0 +1,41 @@
+<form role="form">
+	<div class="row">
+	<div class="col-md-3"/>
+	<div class="col-md-6">
+		<h2>创建客户</h2>
+		<div class="form-group">
+			<label for="name">名称</label>
+			<input type="text" class="form-control" id="name" placeholder="Account Name" ng-model="accName">
+		</div>
+		<div class="form-group">
+			<label for="status">状态</label>
+			<select class="form-control" ng-model="accStatus" id="status">
+				<option value="草稿">草稿</option>
+				<option value="审批中">审批中</option>
+				<option value="审批通过">审批通过</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="phone">电话</label>
+			<input type="text" class="form-control" id="phone" placeholder="Phone Number" ng-model="accPhone">
+		</div>
+		<div class="form-group">
+			<label for="type">类型</label>
+			<select class="form-control" ng-model="accType" id="type">
+				<option value="Prospect">Prospect</option>
+				<option value="Customer - Direct">Customer - Direct</option>
+				<option value="Customer - Channel">Customer - Channel</option>
+				<option value="Channel Partner / Reseller">Channel Partner / Reseller</option>
+				<option value="Installation Partner">Installation Partner</option>
+				<option value="Technology Partner">Technology Partner</option>
+				<option value="Other">Other</option>
+			</select>
+		</div>
+		<center>
+			<a class="btn btn-warning btn-md" href="#/">返回</a>
+			<button type="button" class="btn btn-success" ng-click='createAccount($event)'>创建</button>
+		</center>
+	</div>
+	<div class="col-md-3"/>
+	</div>
+</form>

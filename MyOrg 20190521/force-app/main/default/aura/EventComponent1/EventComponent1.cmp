@@ -1,0 +1,6 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" >
+    <!--注册一个Component 事件-->
+    <aura:registerEvent name="cmpEvent" type="c:Event1"/>
+    <h1>组件事件</h1>
+    <p><lightning:button label="点这里触发组件事件" onclick="{!c.fireComponentEvent}" /></p>
+</aura:component>

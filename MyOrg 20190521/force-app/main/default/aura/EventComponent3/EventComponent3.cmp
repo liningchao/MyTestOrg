@@ -1,0 +1,7 @@
+<aura:component >
+	<aura:attribute name="messageFromEvent" type="String"/>
+    <aura:attribute name="numEvents" type="Integer" default="0"/>
+
+	<p>{!v.messageFromEvent}</p>
+	<p>Number of events: {!v.numEvents}</p>
+</aura:component>

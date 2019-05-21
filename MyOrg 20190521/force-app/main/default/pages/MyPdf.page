@@ -1,0 +1,125 @@
+<apex:page renderas="pdf" controller="MyPdfController" >
+  <head>
+  	<style>
+  		
+  	</style>
+  </head>
+  <body style="font-family:'Arial Unicode MS';font-size:8pt;" >
+  <apex:form >
+	  <apex:outputPanel rendered="true">
+	   	<div>
+            <apex:image value="{!$Resource.Logo}" width="200px"/>
+        </div>
+	  	<div>	
+	        <table border="1" cellspacing="0" cellpadding="0" align="center" width="700px" >
+	        	<tr align="center" >
+	        		<td height="45px">
+					 	产品名称:
+	        		</td>
+	        		<td>{!pro.Name}</td>
+	        		<td height="45px">
+					 	产品编号:
+	        		</td>
+	        		<td>{!pro.Product_Code__c}</td>
+	        	</tr>
+	        	<tr align="center">
+	        		<td height="45px">
+	        			产品股票代码:
+	        		</td>
+	        		<td>{!pro.Product_Code__c}</td>
+	        		<td>
+	        			公司名称:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+	        			产品编号:
+	        		</td>
+	        		<td colspan="3">
+	        			{!pro.Product_Code__c}
+	        		</td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px" rowspan="2">
+	        			产品明细信息:
+	        		</td>
+	        		<td height="45px">
+	        			产品编号:
+	        		</td>
+	        		<td colspan="2">
+	        			{!pro.Product_Code__c}
+	        		</td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px" colspan="2">
+					 	产品名称:
+	        		</td>
+	        		<td>{!pro.Name}</td>	        		
+	        	</tr>
+	        	<tr>
+	        		<td height="45px" colspan="4">
+	        			产品标识码:
+	        		</td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+					 	配件名称:
+	        		</td>
+	        		<td></td>
+	        		<td height="45px">
+					 	配件编号:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+					 	所需服务:
+	        		</td>
+	        		<td></td>
+	        		<td height="45px">
+					 	备注信息:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+					 	SKU:
+	        		</td>
+	        		<td></td>
+	        		<td height="45px">
+					 	数量:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+					 	颜色:
+	        		</td>
+	        		<td></td>
+	        		<td height="45px">
+					 	型号:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="45px">
+					 	颜色:
+	        		</td>
+	        		<td></td>
+	        		<td height="45px">
+					 	型号:
+	        		</td>
+	        		<td></td>
+	        	</tr>
+	        	<tr>
+	        		<td height="60px">备注</td>
+	        		<td colspan="3"></td>
+	        	</tr>
+
+	    	</table>
+	  	</div>
+	  </apex:outputPanel>
+  </apex:form>
+  </body>
+</apex:page>

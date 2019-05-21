@@ -1,0 +1,241 @@
+<apex:page sidebar="false" standardStylesheets="false" showheader="true" doctype="html-5.0" controller="ReportController" id="page">
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>客户管理</title>
+    <apex:includeScript value="{!URLFOR($Resource.echarts)}"/> 
+    <style>
+	    .container{
+	            border: 1px solid #dddddd;
+	            padding-left: 10px;
+	            padding-right: 10px;
+	            margin: auto;
+	            -moz-border-radius: 2px;      /* Gecko browsers */
+	            -webkit-border-radius: 2px;   /* Webkit browsers */
+	            border-radius:2px; 
+	            background-color:#FCFCFC;           /* W3C syntax */
+	        }
+         .panel{
+            border: 1px solid #dddddd;
+            margin-top: 5px;
+            -moz-border-radius: 2px;      /* Gecko browsers */
+            -webkit-border-radius: 2px;   /* Webkit browsers */
+            border-radius:2px;            /* W3C syntax */
+            width:100%;
+            height:300px;
+            overflow-y:auto;
+        }
+        .divCon {
+            background-color:#fff;
+        }
+    </style>
+    <script>
+
+    </script>
+    <body>
+    	<apex:form >
+    		<div class="container">
+				<apex:outputPanel >
+						<table width="100%">
+                            <tr width = "100%">
+                                <td width="50%" valign="top">
+                                    <div class="panel divCon" style="margin-left:-5px;">
+            	                        <table width="100%" style="height: 100%">
+            	                            <tr>
+            	                                <td  style="height: 10%" valign="top">
+            	                                    <h1><span style="font-size: 16px;">客户详情页面</span></h1>
+            	                                </td>
+            	                            </tr>
+            	                            <tr>
+            	                                <td class="dailyTD"  style="height: 90%" valign="top">
+            	                                    <div id="prodcut" style="width: 100%;height:100%;"></div>
+            	                                </td>
+            	                            </tr>
+            	                        </table>
+                                	</div>
+                                </td>
+                                <td width="50%" valign="top">
+                                    <div class="panel divCon" style="margin-left:5px;">
+                                        <table width="100%" style="height: 100%">
+                                            <tr>
+                                                <td  style="height: 10%" valign="top">
+                                                    <h1><span style="font-size: 16px;">客户报表页面</span></h1>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="dailyTD"  style="height: 90%" valign="top">
+                                                    <div id="prodcut2" style="width: 100%;height:100%;"></div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+				</apex:outputPanel>
+    		</div>
+    	</apex:form>
+    	<script>
+    	
+            var myChart = echarts.init(document.getElementById("prodcut"));
+            option = {
+                tooltip : {
+                    trigger: 'axis',
+                    axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                        type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['客户资金','投资金额','投资率']
+                },
+                grid: {
+                    left: '3%',
+                    right: '8%',
+                    bottom: '3%',
+                    containLabel: true,
+                    show:false
+                },
+                xAxis:  {
+                    name : '客户名',
+                    nameLocation : 'end',
+                    type: 'category',
+                    data: [
+                        <apex:repeat value="{!accList}" var="acc">
+                            '{!acc.name}',
+                        </apex:repeat>
+                    ]
+                    
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '金额(万)'
+                    },
+                    {
+                        type: 'value',
+                        name: '投资率(%)',
+                       
+                        axisLabel: {
+                            formatter: '{value} %'
+                        },
+                        splitLine:{
+                            show: false
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '总资产',
+                        type: 'bar',
+                        stack: '总量',
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'TopRight'
+                            }
+                        },
+                        itemStyle:{
+                            normal:{color:'#16315c'}
+                        },
+                        barWidth: '40%',
+                        data: [
+                            <apex:repeat value="{!accList}" var="acc">
+                                {!acc.Money__c},
+                            </apex:repeat>
+                        ]
+                    },
+                    {
+                        name: '投资金额',
+                        type: 'bar',
+                        stack: '总量',
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'TopRight'
+                            }
+                        },
+                        itemStyle:{
+                            normal:{color:'#00a1e1'}
+                        },
+                        data: [
+                            <apex:repeat value="{!accList}" var="acc">
+                                {!acc.AlreadyMoney__c},
+                            </apex:repeat>
+                        ]
+                    },
+                    {
+                        name: '投资率',
+                        type: 'line',
+                        //stack: '总量',
+                        yAxisIndex: 1,
+                        label: {
+                            normal: {
+                                show: false
+                                // position: 'insideRight'
+                            }
+                        },
+                        itemStyle:{
+                            normal:{color:'#e37002'}
+                        },
+                        data: [
+                            <apex:repeat value="{!accList}" var="acc">
+                                {!acc.MoneyRate__c},
+                            </apex:repeat>
+                        ]
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
+
+            var myProduct = echarts.init(document.getElementById('prodcut2'));
+            option1 = {
+                tooltip : {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                color:['#f3da03','#e27000','#651cce','#a53711','#78c953','#38c955'],
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    data: [
+                        <apex:repeat value="{!accList}" var="acc">
+                            '{!acc.MoneyRate__c}',
+                        </apex:repeat>
+                    ]
+                },
+                series : [
+                    {
+                        name: '产品占比',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        center: ['60%', '60%'],
+                        data:[
+                            <apex:repeat value="{!accList}" var="acc">
+                                {value:{!acc.AlreadyMoney__c},name:'{!acc.MoneyRate__c}'},
+                            </apex:repeat>
+                            
+                        ],
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            },
+                            normal:{
+                                label:{
+                                    show: true,
+                                    formatter: '{b} : {c} ({d}%)'
+                                },
+                                labelLine :{show:true}
+                            }
+                        }
+                    }
+                ]
+            };
+            myProduct.setOption(option1);       
+    	</script>
+    </body>
+</apex:page>

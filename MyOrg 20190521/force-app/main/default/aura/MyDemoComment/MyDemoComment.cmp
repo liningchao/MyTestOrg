@@ -1,0 +1,223 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable,flexipage:availableForRecordHome,force:lightningQuickActionWithoutHeader,force:hasSObjectName,force:hasRecordId" controller="AP_OrderItems">
+	<style>
+		.slds-modal__container {
+			 max-width: 80rem !important;
+		     width:80% !important;
+		}
+	</style>
+	<!-- 控制Waiting是否展示参数 -->
+	<aura:attribute name="toggleSpinner" type="boolean" default="false"/>
+	<aura:attribute name="recordId" type="String"/>
+	<aura:attribute name="product" type="Product__c"  default="{ 'sobjectType' : 'Product__c'}"/>
+	<aura:attribute name="productListAdd" type="Object[]"/>
+	<aura:attribute name="addListFlag" type="boolean" default="false"/>
+	<aura:attribute name="productListSerach" type="Object[]"/>
+	<aura:handler name="init" value="this" action="{!c.doInit}"/>
+	<aura:attribute name="selectedCount" type="integer" default="0" description="用于记录有多少条选中数据"/>
+	
+
+	 <!-- 分页参数 -->
+    <aura:attribute name="page" type="integer" description="当前页码"/>
+    <aura:attribute name="pages" type="integer" description="页码总数"/>
+    <aura:attribute name="total" type="integer" description="分页记录总数"/>
+    <aura:attribute name="pagesize" type="integer" description="每页记录数"/>
+
+	<!-- 头部模块 -->
+	<article class="slds-card">
+    	<div class="slds-card__header slds-grid">
+		    <header class="slds-media slds-media_center slds-has-flexi-truncate"> 
+		      <div class="slds-media__body">
+		        <h1>
+		        	<lightning:icon iconName="action:clone"/>
+		            <span class="slds-text-heading_small" style="font-size: 24px; margin-left: 15px;">添加订单产品</span>
+		        </h1>
+		      </div> 
+		      <div class="slds-no-flex">
+         		<button class="slds-button slds-button_brand" onclick="{!c.doSearch}">搜索</button>
+        	  </div>
+		    </header>
+		</div>
+		<!-- 主体模块 -->
+		<div class="slds-card__body slds-card__body_inner"> 
+			<!-- 内部接着是一个article标签 -->
+			<article class="slds-card">
+				<div class="slds-card__body slds-card__body_inner"> 
+					<table class="slds-table slds-table_fixed-layout slds-table_bordered slds-no-row-hover slds-table_cell-buffer">
+      					<tr class="slds-text-title_caps">
+							 <th scope="col">
+					            <div class="slds-truncate" title="Product_Name">
+					            	 <lightning:input label="产品名称：" value=""  type="text" name="Product_Name" aura:id="Product_Name"/>
+					            </div>
+					          </th>
+					          <th scope="col">
+					            <div class="slds-truncate" title="ProductID">
+					            	<lightning:input label="产品标识码：" value=""  type="text" name="ProductID" aura:id="ProductID"/> 
+					            </div>
+					          </th>
+					    </tr>
+					</table>
+				</div>
+			</article>
+			<!-- 查询结果 -->
+			<article class="slds-card slds-card_boundary">
+		       <div class="slds-card__header slds-grid">
+		        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+		          <div class="slds-media__figure">
+		            <span class="slds-icon_container slds-icon-standard-contact" title="description of icon when needed">
+		            </span>
+		          </div>
+		          <div class="slds-media__body">
+		            <h2>
+		                <span class="slds-text-heading_small">查询结果</span>
+		            </h2>
+		          </div>
+		        </header>
+		        <div class="slds-no-flex">
+		          <button class="slds-button slds-button_brand" onclick="{!c.add}">添加</button>
+		        </div>
+		      </div>
+		      <div class="slds-card__body slds-card__body_inner">
+		      	<div style="overflow-y: scroll;display: block;height: 300px">
+		        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-no-row-hover slds-table_cell-buffer"><!--  style="overflow-y: scroll;display: block;height: 300px" -->
+			      <thead>
+				        <tr class="slds-text-title_caps">
+				        	<th scope="col" style="width:3.25rem;" class="slds-text-align--right">
+					            <ui:inputCheckbox aura:id="se" change="{!c.selectAll}" class="pro"/>
+					        </th>
+				            <th scope="col" style="width:30%;">
+				            <div class="slds-truncate" title="Name">产品名称</div>
+				            </th>
+				            <th scope="col" style="width:15%;">
+				            <div class="slds-truncate" title="Company">产品标识码</div>
+				            </th>
+				        </tr>
+			       </thead>
+			       <tbody>
+				      	<aura:iteration items="{!v.productListSerach}" var="prod">
+					        <tr class="slds-hint-parent">
+					          <td>
+					            <ui:inputCheckbox aura:id="box" value="{!prod.flag}"/>
+					          </td>
+					          <td>
+					            <div class="slds-truncate" title="">
+					            	<ui:outputTextArea value="{!prod.product.Name}" click="{!c.showProduct}"/>	
+					            </div>
+					          </td>
+					          <td>
+					            <div class="slds-truncate" title="">
+					            	<p>{!prod.product.Product_Code__c}</p>
+					            </div>
+					          </td>
+					        </tr>
+				    	</aura:iteration>
+					</tbody>
+					 <tfoot class="slds-card__footer">
+                        <tr>
+                            <td colspan="3">
+                                <div class="slds-truncate" style="text-align: center;">
+                                    记录总数：{!v.total}&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button disabled="{!v.page == 1}"  text="首页" onclick="{!c.HomeLastNavigate}" class="slds-button">首页</button>
+                                    <button disabled="{!v.page == 1}"  text="上一页" onclick="{!c.navigate}" class="slds-button">上一页</button>
+                                    <button aura:id="previousPage" disabled="{!v.page == v.pages}"  text="下一页" onclick="{!c.navigate}" class="slds-button">下一页</button>
+                                    <button disabled="{!v.page == v.pages}"  text="尾页" onclick="{!c.HomeLastNavigate}" class="slds-button">尾页</button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; 第{!v.page} / {!v.pages}页
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>				         
+			    </table>
+			    </div>
+			  </div>
+		  	</article>
+		</div>
+	  	
+	  
+	</article>
+	<aura:if isTrue="{!v.addListFlag}"> 
+	<!-- 选择的产品表 -->
+	<article class="slds-card slds-card_boundary">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-contact" title="description of icon when needed">
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <h2>
+                <span class="slds-text-heading_small">产品列表</span>
+            </h2>
+          </div>
+        </header>
+        <div class="slds-no-flex">
+          <button class="slds-button slds-button_brand" onclick="{!c.remove}">移除</button>
+        </div>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-no-row-hover slds-table_cell-buffer" >
+	      <thead>
+	        <tr class="slds-text-title_caps">
+	       	  <th scope="col" style="width:3.25rem;" class="slds-text-align--right">
+		         <ui:inputCheckbox aura:id="pro" change="{!c.selectAll}" class="pro2"/>
+		      </th>
+	          <th scope="col" style="width:24%;">
+	            <div class="slds-truncate" title="Name">产品名称</div>
+	          </th>
+	          <th scope="col" style="width:8%;">
+	            <div class="slds-truncate" title="Email">产品号</div>
+	          </th>
+	          <th scope="col" style="width:8%;">
+	            <div class="slds-truncate" title="Email">数量</div>
+	          </th>
+	          <th scope="col" style="width:9%;">
+	            <div class="slds-truncate" title="Email">单价</div>
+	          </th>
+	        </tr>
+	      </thead>
+	      <tbody>
+	      	<aura:iteration items="{!v.productListAdd}" var="productAdd">
+	        <tr class="slds-hint-parent">
+	          <td>
+	            <ui:inputCheckbox aura:id="box1" value="{!productAdd.flag}"/>
+	          </td>
+	          <td>
+	            <div class="slds-truncate" title="">
+	            	<ui:outputText value="{!productAdd.product.Name}"/>
+	            </div>
+	          </td>
+	          <td>
+	            <ui:outputText value="{!productAdd.product.Product_Code__c}"/>
+	          </td>
+	          <td>
+	            <div class="slds-truncate" title="">
+	            	<ui:inputNumber label=" " value="{!productAdd.num}"  /> 
+	            </div>
+	          </td>
+
+	          <td>
+	            <div class="slds-truncate" title="">
+	            	<ui:inputNumber label=" " value="{!productAdd.Price}"  /> 
+	            </div>
+	          </td>
+	        </tr>
+	    	</aura:iteration>
+	      </tbody>
+	    </table>
+      </div>
+      <!-- 页足模块 -->
+	  	<footer class="slds-card__footer">
+	  		<lightning:button class="slds-button slds-button_brand" label="提交" onclick="{!c.save}"/>
+	  		<lightning:button class="slds-button slds-button_neutral" label="取消" onclick="{!c.cancel}"/>
+	  	</footer>
+    </article>
+	</aura:if>
+	<!-- Waiting组块 -->
+<aura:if isTrue="{!v.toggleSpinner}"> 
+	<div class="slds-spinner_container">
+		<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+		    <span class="slds-assistive-text">Loading</span>
+		    <div class="slds-spinner__dot-a"></div>
+		    <div class="slds-spinner__dot-b"></div>
+		 </div>
+	</div>
+</aura:if> 
+</aura:component>

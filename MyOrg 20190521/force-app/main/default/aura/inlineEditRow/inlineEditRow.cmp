@@ -1,0 +1,91 @@
+<!-- table列 component -->
+<aura:component controller="AddWarehouseProductsController">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!--页面属性-->
+    <aura:attribute name="objInfoForPicklistValues" type="Computer_Product__c" default="{sobjectType : 'Computer_Product__c'}" description="根据对象信息来获取选项列表值"/>
+    <aura:attribute name="picklistOpts" type="string[]" description="存储选项列表选项值"/> 
+    <aura:attribute name="showSaveCancelBtn" type="boolean"/>
+    <aura:attribute name="showErrorClass" type="boolean" default="false"/>
+    <aura:attribute name="sNo" type="string" />
+    <aura:attribute name="singleRec" type="sobject" default="{ 'sobjectType' : 'Computer_Product__c',
+                                                               'Name' : '',
+                                                               'Product_Brand__c' : '',
+                                                               'Product_Number__c' :'',
+                                                               'Product_Price__c' : ''
+                                                             }"/>
+    <aura:attribute name="nameEditMode" type="boolean" default="false" />
+    <aura:attribute name="productBrandEditMode" type="boolean" default="false" />
+    
+    <!--Table Row Start-->  
+    <tr>
+        <td><div class="slds-truncate">{!v.sNo}</div></td>
+        <td ondblclick="{!c.inlineEditName}" class="{!v.showErrorClass == true ?'slds-cell-edit slds-has-error' : 'slds-cell-edit'}">
+            <span class="slds-grid slds-grid_align-spread">
+                <!-- 根据布尔标志显示输入和输出部分 --> 
+                <aura:if isTrue="{!v.nameEditMode == false}">
+                    <span class="slds-truncate" title="Name">{!v.singleRec.cp.Name}</span>
+                    	<button onclick="{!c.inlineEditName}" class="slds-button slds-button_icon slds-cell-edit__button slds-m-left_x-small" tabindex="0" title="修改产品名称">
+                      	<lightning:icon iconName="utility:edit" size="xx-small" alternativeText="edit"/>
+                    </button>                 
+                    <!--else情况 内联编辑部分 -->  
+                    <aura:set attribute="else">
+                        <section tabindex="0" class="slds-popover slds-popover_edit" role="dialog" style="position: absolute; top: 0px">
+                            <div class="slds-popover__body">
+                                <div class="slds-form-element slds-grid slds-wrap">
+                                    <div class="slds-form-element__control slds-grow">
+                                        <ui:inputText class="slds-input inputFieldWidth"
+                                                      labelClass="slds-form-element__label slds-form-element__label_edit slds-no-flex"
+                                                      aura:id="inputId"
+                                                      blur="{!c.closeNameBox}"
+                                                      change="{!c.onNameChange}"
+                                                      required="true"
+                                                      label="产品名称"
+                                                      value="{!v.singleRec.cp.Name}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="form-end" tabindex="0"></span>
+                        </section>  
+                    </aura:set>  
+                </aura:if> 
+            </span>
+        </td>
+        <td ondblclick="{!c.inlineEditProductBrand}" class="slds-cell-edit">
+            <span class="slds-grid slds-grid_align-spread">
+                <!-- 根据布尔标志显示输入和输出部分 --> 
+                <aura:if isTrue="{!v.productBrandEditMode == false}">
+                    <span class="slds-truncate" title="Rating">{!v.singleRec.cp.Product_Brand__c}</span>
+                    	<button onclick="{!c.inlineEditProductBrand}" class="slds-button slds-button_icon slds-cell-edit__button slds-m-left_x-small" tabindex="0" title="修改产品品牌">
+                        <lightning:icon iconName="utility:edit" size="xx-small" alternativeText="edit"/>
+                    </button>
+                    
+                    <!--else情况 内联编辑部分 --> 
+                    <aura:set attribute="else">
+                        <section  tabindex="0" class="slds-popover slds-popover_edit" role="dialog" style="position: absolute; top: 0px">
+                            <div class="slds-popover__body">
+                                <div class="slds-form-element slds-grid slds-wrap">
+                                    <div class="slds-form-element__control slds-grow">
+                                        <label class="slds-form-element__label">产品品牌</label>
+                                        <ui:inputSelect aura:id="productBrand"
+                                                        class="slds-select inputFieldWidth"
+                                                        blur="{!c.closeProductBrandBox}"
+                                                        change="{!c.onProductBrandChange}"
+                                                        value="{!v.singleRec.cp.Product_Brand__c}"
+                                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="form-end" tabindex="0"></span>
+                        </section>  
+                    </aura:set>  
+                </aura:if> 
+            </span>
+        </td> 
+        <td>
+            <div class="slds-truncate">{!v.singleRec.cp.Product_Number__c}</div>
+        </td>
+        <td>
+            <div class="slds-truncate">{!v.singleRec.cp.Product_Price__c}</div>
+        </td>
+    </tr>
+</aura:component>
